@@ -23,7 +23,7 @@ export class AuthService {
           hash,
         },
       });
-      return user;
+      return this.signToken(user.id, user.email);
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         console.log('Prisma error', error?.message);
