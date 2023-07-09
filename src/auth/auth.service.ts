@@ -1,8 +1,8 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthDto } from './dto';
 import * as argon from 'argon2';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable({})
 export class AuthService {
@@ -23,14 +23,30 @@ export class AuthService {
       if (error instanceof PrismaClientKnownRequestError) {
         console.log('Prisma error', error?.message);
         console.log('Prisma code', error?.code);
-        throw new ForbiddenException('Credentials taken');
+        throw new ForbiddenException('Credentials taken, try different email');
       }
       console.log('Other error', error?.message);
       throw error;
     }
   }
 
-  signIn() {
-    return { msg: 'I am sign in' };
+  async signIn(dto: AuthDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: dto.email,
+      },
+    });
+    if (!user) {
+      throw new ForbiddenException('User not found');
+    }
+
+    const passwordMatches = await argon.verify(user.hash, dto.password);
+    if (!passwordMatches) {
+      throw new ForbiddenException(
+        'Incorrect credentials, check email or password',
+      );
+    }
+    delete user.hash;
+    return user;
   }
 }
