@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from "@nestjs/common";
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthDto } from './dto';
 import * as argon from 'argon2';
@@ -21,8 +21,12 @@ export class AuthService {
       return user;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
-        throw new Error(error?.message);
+        console.log('Prisma error', error?.message);
+        console.log('Prisma code', error?.code);
+        throw new ForbiddenException('Credentials taken');
       }
+      console.log('Other error', error?.message);
+      throw error;
     }
   }
 
