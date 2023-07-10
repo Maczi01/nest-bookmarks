@@ -71,7 +71,8 @@ describe('App e2e test', () => {
           .expectStatus(200)
           .expectJsonLike({
             accessToken: /^ey.*/,
-          });
+          })
+          .stores('userAt', 'accessToken');
       });
       it('Should not sign in with incorrect credentials', () => {
         return pactum
@@ -88,8 +89,21 @@ describe('App e2e test', () => {
   });
 
   describe('User', () => {
-    describe('Get me', () => {});
-    describe('Edit user', () => {});
+    describe('Get user information', () => {
+      it('Should give information about user', () => {
+        return pactum
+          .spec()
+          .get('users/me')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(201);
+      });
+    });
+    // describe('Get me', () => {
+    //   return pactum.spec().get('users/me').expectStatus(403);
+    // });
+    // describe('Edit user', () => {});
   });
 
   describe('Bookmark', () => {
