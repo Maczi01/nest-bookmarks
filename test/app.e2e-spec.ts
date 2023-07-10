@@ -24,25 +24,47 @@ describe('App e2e test', () => {
     await app.listen(3334);
     prisma = app.get(PrismaService);
     await prisma.cleanDb();
+    pactum.request.setBaseUrl(BASE_URL);
   });
 
   afterAll(() => app.close());
 
   describe('Auth', () => {
+    const userCredentials: AuthDto = {
+      email: 'mati@o2.pl',
+      password: 'somepassword',
+    };
     describe('Signup', () => {
-      const userCredentials: AuthDto = {
-        email: 'mati99@99.pl',
-        password: 'somepassword',
-      };
-      it('should signup', () => {
+      it('Should signup with given credentials', () => {
         return pactum
           .spec()
-          .post(`${BASE_URL}auth/signup`)
+          .post('auth/signup')
           .withBody(userCredentials)
-          .expectStatus(201);
+          .expectStatus(201)
+          .expectJsonLike({
+            accessToken: /^ey.*/,
+          });
+      });
+      it('Should reject signup with repeated credentials', () => {
+        return pactum
+          .spec()
+          .post('auth/signup')
+          .withBody(userCredentials)
+          .expectStatus(403)
+          .expectBodyContains('Credentials taken, try different email');
+      });
+      it('Should reject signup with incorrect email format', () => {
+        return pactum
+          .spec()
+          .post('auth/signup')
+          .withBody({ userCredentials, email: 'mati.pl' })
+          .expectStatus(400)
+          .expectBodyContains('email must be an email');
       });
     });
-    describe('Signin', () => {});
+    describe('Signin', () => {
+      // it('Should login with created user')
+    });
   });
 
   describe('User', () => {
