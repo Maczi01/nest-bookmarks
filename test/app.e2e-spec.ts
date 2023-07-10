@@ -62,8 +62,28 @@ describe('App e2e test', () => {
           .expectBodyContains('email must be an email');
       });
     });
-    describe('Signin', () => {
-      // it('Should login with created user')
+    describe('Sign in', () => {
+      it('Should sign in with given credentials', () => {
+        return pactum
+          .spec()
+          .post('auth/signin')
+          .withBody(userCredentials)
+          .expectStatus(200)
+          .expectJsonLike({
+            accessToken: /^ey.*/,
+          });
+      });
+      it('Should not sign in with incorrect credentials', () => {
+        return pactum
+          .spec()
+          .post('auth/signin')
+          .withBody({
+            email: 'mati@o2.pl',
+            password: 'somepassword1',
+          })
+          .expectStatus(403)
+          .expectBodyContains('Incorrect credentials, check email or password');
+      });
     });
   });
 
