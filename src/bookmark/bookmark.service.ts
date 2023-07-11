@@ -1,18 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBookmarkDto, UpdateBookmarkDto } from './dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class BookmarkService {
+  constructor(private prisma: PrismaService) {}
+
   getAllBookmarks(userId: number) {
-    return `This action returns all bookmark`;
+    return this.prisma.bookmark.findMany({
+      where: {
+        userId: userId,
+      },
+    });
   }
 
   getBookmarkById(userId: number, bookmarkId: number) {
-    return `This action returns a #${userId} bookmark`;
+    return this.prisma.bookmark.findFirst({
+      where: {
+        id: bookmarkId,
+        userId,
+      },
+    });
   }
 
-  createBookmark(userId: number, createBookmarkDto: CreateBookmarkDto) {
-    return 'This action adds a new bookmark';
+  async createBookmark(userId: number, createBookmarkDto: CreateBookmarkDto) {
+    const bookmark = this.prisma.bookmark.create({
+      data: { ...createBookmarkDto, userId },
+    });
+    return bookmark;
   }
 
   updateBookmark(

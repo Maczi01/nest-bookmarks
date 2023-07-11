@@ -6,6 +6,7 @@ import * as pactum from 'pactum';
 import { AuthDto } from '../src/auth/dto';
 import { EditUserDto } from '../src/user/dto';
 import * as assert from 'assert';
+import { CreateBookmarkDto } from '../src/bookmark/dto';
 
 describe('App e2e test', () => {
   let app: INestApplication;
@@ -123,6 +124,24 @@ describe('App e2e test', () => {
   });
 
   describe('Bookmark', () => {
+    describe('Create bookmark', () => {
+      it('Should correctly create bookmark', () => {
+        const exampleBookmarkDto: CreateBookmarkDto = {
+          title: 'Example Bookmark',
+          description: 'This is an example bookmark',
+          link: 'https://example.com',
+        };
+        return pactum
+          .spec()
+          .post('bookmarks')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .withBody(exampleBookmarkDto)
+          .expectStatus(201)
+          .stores('bookmarkId', 'id');
+      });
+    });
     describe('Get bookmarks', () => {
       it('Should correctly return list of bookmarks', () => {
         return pactum
@@ -131,11 +150,23 @@ describe('App e2e test', () => {
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })
-          .expectStatus(200);
+          .expectStatus(200)
+          .expectJsonLength(1);
       });
     });
-    describe('Get bookmark by id', () => {});
-    describe('Create bookmark', () => {});
+    describe('Get bookmark by id', () => {
+      it('Should correctly return list of bookmarks', () => {
+        return pactum
+          .spec()
+          .get('bookmarks/$S{bookmarkId}')
+          .withPathParams('id', '$S{bookmarkId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200)
+          .expectBodyContains('$S{bookmarkId}');
+      });
+    });
     describe('Edit bookmark', () => {
       // it('Should correctly edit user', () => {
       //   const editedUser: EditUserDto = {
