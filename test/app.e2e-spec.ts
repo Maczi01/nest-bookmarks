@@ -4,6 +4,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { PrismaService } from '../src/prisma/prisma.service';
 import * as pactum from 'pactum';
 import { AuthDto } from '../src/auth/dto';
+import { EditUserDto } from '../src/user/dto';
 
 describe('App e2e test', () => {
   let app: INestApplication;
@@ -74,16 +75,16 @@ describe('App e2e test', () => {
           })
           .stores('userAt', 'accessToken');
       });
-      it('Should not sign in with incorrect credentials', () => {
+      it('Should sign in with given credentials', () => {
         return pactum
           .spec()
           .post('auth/signin')
-          .withBody({
-            email: 'mati@o2.pl',
-            password: 'somepassword1',
+          .withBody(userCredentials)
+          .expectStatus(200)
+          .expectJsonLike({
+            accessToken: /^ey.*/,
           })
-          .expectStatus(403)
-          .expectBodyContains('Incorrect credentials, check email or password');
+          .stores('userAt', 'accessToken');
       });
     });
   });
@@ -103,7 +104,21 @@ describe('App e2e test', () => {
     // describe('Get me', () => {
     //   return pactum.spec().get('users/me').expectStatus(403);
     // });
-    // describe('Edit user', () => {});
+    it('Should correctly edit user', () => {
+      const editedUser: EditUserDto = {
+        email: 'mati@o2.pl',
+        firstName: 'mati',
+        lastName: 'password',
+      };
+      return pactum
+        .spec()
+        .patch('users')
+        .withHeaders({
+          Authorization: 'Bearer $S{userAt}',
+        })
+        .withBody(editedUser)
+        .expectStatus(200);
+    });
   });
 
   describe('Bookmark', () => {

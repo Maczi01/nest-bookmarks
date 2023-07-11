@@ -22,14 +22,14 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Get('me')
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   getLoggedUserInfo(@GetUser() user: User) {
     return user;
   }
 
   @Get()
   getUsers() {
-    return [];
+    return this.userService.getAllUsers();
   }
 
   @Patch()

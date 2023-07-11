@@ -15,7 +15,13 @@ export class UserService {
         ...dto,
       },
     });
+
     delete user.hash;
+
     return user;
   }
+
+  getAllUsers = () => {
+    return this.prisma.user.findMany();
+  };
 }
