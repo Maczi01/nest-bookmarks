@@ -98,12 +98,9 @@ describe('App e2e test', () => {
           .withHeaders({
             Authorization: 'Bearer $S{userAt}',
           })
-          .expectStatus(201);
+          .expectStatus(200);
       });
     });
-    // describe('Get me', () => {
-    //   return pactum.spec().get('users/me').expectStatus(403);
-    // });
     it('Should correctly edit user', () => {
       const editedUser: EditUserDto = {
         email: 'mati@o2.pl',
@@ -117,7 +114,10 @@ describe('App e2e test', () => {
           Authorization: 'Bearer $S{userAt}',
         })
         .withBody(editedUser)
-        .expectStatus(200);
+        .expectStatus(200)
+        .expectBodyContains('mati@o2.pl')
+        .expectBodyContains('mati')
+        .expectBodyContains('password');
     });
   });
 

@@ -33,6 +33,7 @@ export class UserController {
   }
 
   @Patch()
+  @HttpCode(HttpStatus.OK)
   editUser(@GetUser('id') userId: number, @Body() dto: EditUserDto) {
     return this.userService.editUser(userId, dto);
   }
