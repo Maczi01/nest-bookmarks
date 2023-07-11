@@ -5,6 +5,7 @@ import { PrismaService } from '../src/prisma/prisma.service';
 import * as pactum from 'pactum';
 import { AuthDto } from '../src/auth/dto';
 import { EditUserDto } from '../src/user/dto';
+import * as assert from 'assert';
 
 describe('App e2e test', () => {
   let app: INestApplication;
@@ -122,9 +123,38 @@ describe('App e2e test', () => {
   });
 
   describe('Bookmark', () => {
-    describe('Get bookmarks', () => {});
+    describe('Get bookmarks', () => {
+      it('Should correctly return list of bookmarks', () => {
+        return pactum
+          .spec()
+          .get('bookmarks')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(200);
+      });
+    });
     describe('Get bookmark by id', () => {});
     describe('Create bookmark', () => {});
-    describe('Edit bookmark', () => {});
+    describe('Edit bookmark', () => {
+      // it('Should correctly edit user', () => {
+      //   const editedUser: EditUserDto = {
+      //     email: 'mati@o2.pl',
+      //     firstName: 'mati',
+      //     lastName: 'password',
+      //   };
+      //   return pactum
+      //     .spec()
+      //     .patch('bookmark')
+      //     .withHeaders({
+      //       Authorization: 'Bearer $S{userAt}',
+      //     })
+      //     .withBody(editedUser)
+      //     .expectStatus(200)
+      //     .expectBodyContains('mati@o2.pl')
+      //     .expectBodyContains('mati')
+      //     .expectBodyContains('password');
+      // });
+    });
   });
 });

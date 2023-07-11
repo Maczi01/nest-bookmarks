@@ -26,11 +26,8 @@ export class AuthService {
       return this.signToken(user.id, user.email);
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
-        console.log('Prisma error', error?.message);
-        console.log('Prisma code', error?.code);
         throw new ForbiddenException('Credentials taken, try different email');
       }
-      console.log('Other error', error?.message);
       throw error;
     }
   }
