@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateBookmarkDto, UpdateBookmarkDto } from './dto';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -30,12 +30,33 @@ export class BookmarkService {
     return bookmark;
   }
 
-  updateBookmark(
+  async updateBookmark(
     userId: number,
     bookmarkId: number,
     updateBookmarkDto: UpdateBookmarkDto,
   ) {
-    return `This action updates a #${bookmarkId} bookmark`;
+    const bookmark = await this.prisma.bookmark.findUnique({
+      where: {
+        id: bookmarkId,
+      },
+    });
+
+    if (!bookmark) {
+      throw new ForbiddenException('Bookmark not exists');
+    }
+    if (bookmark.userId !== userId) {
+      throw new ForbiddenException('Cannot update not owned bookmark!');
+    }
+
+    const updatedBookmark = await this.prisma.bookmark.update({
+      where: {
+        id: bookmarkId,
+      },
+      data: {
+        ...updateBookmarkDto,
+      },
+    });
+    return updatedBookmark;
   }
 
   removeBookmark(userId: number, bookmarkId: number) {
