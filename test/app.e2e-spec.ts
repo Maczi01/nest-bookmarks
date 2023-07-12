@@ -5,7 +5,6 @@ import { PrismaService } from '../src/prisma/prisma.service';
 import * as pactum from 'pactum';
 import { AuthDto } from '../src/auth/dto';
 import { EditUserDto } from '../src/user/dto';
-import * as assert from 'assert';
 import { CreateBookmarkDto, UpdateBookmarkDto } from '../src/bookmark/dto';
 
 describe('App e2e test', () => {
