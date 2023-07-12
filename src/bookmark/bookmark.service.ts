@@ -23,10 +23,14 @@ export class BookmarkService {
     });
   }
 
-  async createBookmark(userId: number, createBookmarkDto: CreateBookmarkDto) {
-    const bookmark = this.prisma.bookmark.create({
-      data: { ...createBookmarkDto, userId },
+  async createBookmark(userId: number, dto: CreateBookmarkDto) {
+    const bookmark = await this.prisma.bookmark.create({
+      data: {
+        userId,
+        ...dto,
+      },
     });
+
     return bookmark;
   }
 
@@ -59,7 +63,24 @@ export class BookmarkService {
     return updatedBookmark;
   }
 
-  removeBookmark(userId: number, bookmarkId: number) {
-    return `This action removes a #${bookmarkId} bookmark`;
+  async removeBookmarkById(userId: number, bookmarkId: number) {
+    const bookmark = await this.prisma.bookmark.findUnique({
+      where: {
+        id: bookmarkId,
+      },
+    });
+
+    if (!bookmark) {
+      throw new ForbiddenException('Bookmark not exists');
+    }
+    if (bookmark.userId !== userId) {
+      throw new ForbiddenException('Access denied!');
+    }
+
+    await this.prisma.bookmark.delete({
+      where: {
+        id: bookmarkId,
+      },
+    });
   }
 }

@@ -7,8 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
-  ParseIntPipe,
-} from '@nestjs/common';
+  ParseIntPipe, HttpStatus, HttpCode
+} from "@nestjs/common";
 import { BookmarkService } from './bookmark.service';
 import { JwtGuard } from '../auth/guard';
 import { GetUser } from '../auth/decorator';
@@ -54,10 +54,11 @@ export class BookmarkController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   removeBookmark(
     @GetUser('id') userId: number,
     @Param('id', ParseIntPipe) bookmarkId: number,
   ) {
-    return this.bookmarkService.removeBookmark(userId, bookmarkId);
+    return this.bookmarkService.removeBookmarkById(userId, bookmarkId);
   }
 }
