@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthDto } from './dto';
-import * as argon from 'argon2';
+import * as bcrypt from 'bcrypt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -14,9 +14,11 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
+  saltRounds = 10;
+
   async signUp(dto: AuthDto) {
     try {
-      const hash = await argon.hash(dto.password);
+      const hash = await bcrypt.hash(dto.password, this.saltRounds);
       const user = await this.prisma.user.create({
         data: {
           email: dto.email,
@@ -42,7 +44,7 @@ export class AuthService {
       throw new ForbiddenException('User not found');
     }
 
-    const passwordMatches = await argon.verify(user.hash, dto.password);
+    const passwordMatches = await bcrypt.compare(dto.password, user.hash);
     if (!passwordMatches) {
       throw new ForbiddenException(
         'Incorrect credentials, check email or password',
